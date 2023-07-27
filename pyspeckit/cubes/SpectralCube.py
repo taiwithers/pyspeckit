@@ -661,10 +661,16 @@ class Cube(spectrum.Spectrum):
                 merged_result = [core_result for core_result in result
                                  if core_result is not None]
                 for mr in merged_result:
-                    ((x,y), model) = mr
-                    x = int(x)
-                    y = int(y)
-                    self._modelcube[:,y,x] = model
+                    if (len(mr) == 2) and isinstance(mr[0][0], int): 
+                        # mr has the form ((x,y), model)
+                        ((x,y), model) = mr
+                        self._modelcube[:,y,x] = model
+                    else: 
+                        # mr probably has the form [((x1,y1), model1), ((x2,y2), model2), ...]
+                        for subresult in mr:
+                            ((x,y), model) = subresult
+                            x, y = int(x), int(y)
+                            self._modelcube[:,y,x] = model
             else:
                 # progressbar doesn't work with zip; I'm therefore giving up on
                 # "efficiency" in memory by making a list here.
