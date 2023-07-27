@@ -865,6 +865,7 @@ class Cube(spectrum.Spectrum):
 
         def fit_a_pixel(iixy):
             ii,x,y = iixy
+            x, y = int(x), int(y)
             sp = self.get_spectrum(x,y)
 
             # very annoying - cannot use min/max without checking type
