@@ -122,8 +122,9 @@ def ConfigDescriptor(f):
             # we have to jump through hoops to get "signature" to work.
             # This is not python4-compatible, but I don't have internet access
             # now and can't figure out how to make it so.
+            # Changed to getfullargspec()[:-3] to be python 3.X compatible
             warnings.simplefilter('ignore')
-            all_args, all_vars, all_keys, all_defs = inspect.getargspec(f)
+            all_args, all_vars, all_keys, all_defs = inspect.getfullargspec(f)[:-3]
         all_args.pop(0) # pop self
 
         # Construct dictionary containing all of f's keyword arguments
