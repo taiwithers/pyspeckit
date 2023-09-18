@@ -1438,11 +1438,13 @@ class Specfit(interactive.Interactive):
         axis = self.Spectrum.plotter.axis
         if axis and axis.legend_ == self.fitleg:
             axis.legend_ = None
-        if axis and self.fitleg is not None:
+
+        # commented out since ArtistList object has no attribute 'remove' - mpl deprecation
+        # if axis and self.fitleg is not None:
             # don't remove fitleg unless it's in the current axis
             # self.fitleg.set_visible(False)
-            if self.fitleg in axis.artists:
-                axis.artists.remove(self.fitleg)
+            # if self.fitleg in axis.artists:
+            #     axis.artists.remove(self.fitleg)
         if self.Spectrum.plotter.autorefresh:
             self.Spectrum.plotter.refresh()
 
