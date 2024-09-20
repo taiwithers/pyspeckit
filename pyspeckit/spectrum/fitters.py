@@ -19,6 +19,8 @@ from . import interactive
 from . import history
 from . import widgets
 
+from pyspeckit.spectrum.units import SpectroscopicAxis
+
 class Registry(object):
     """
     This class is a simple wrapper to prevent fitter properties from being globals
@@ -754,6 +756,9 @@ class Specfit(interactive.Interactive):
         spectofit = self.spectofit[self.xmin:self.xmax][~self.mask_sliced].astype('float64')
         err = self.errspec[self.xmin:self.xmax][~self.mask_sliced].astype('float64')
 
+        if hasattr(xtofit, 'value') and not hasattr(xtofit, 'x_to_coord'):
+            xtofit = SpectroscopicAxis(xtofit)
+
         if np.all(err == 0):
             raise ValueError("Errors are all zero.  This should not occur and "
                              "is a bug. (if you set the errors to all zero, "
@@ -1418,13 +1423,19 @@ class Specfit(interactive.Interactive):
         if hasattr(self,'residualplot'):
             for L in self.residualplot:
                 if L in self.Spectrum.plotter.axis.lines:
-                    self.Spectrum.plotter.axis.lines.remove(L)
+                    if hasattr(self.Spectrum.plotter.axis.lines, 'remove'):
+                        self.Spectrum.plotter.axis.lines.remove(L)
+                    else:
+                        L.remove()
 
     def _clearcomponents(self):
         for pc in self._plotted_components:
             pc.set_visible(False)
             if pc in self.Spectrum.plotter.axis.lines:
-                self.Spectrum.plotter.axis.lines.remove(pc)
+                if hasattr(self.Spectrum.plotter.axis.lines, 'remove'):
+                    self.Spectrum.plotter.axis.lines.remove(pc)
+                else:
+                    pc.remove()
         if self.Spectrum.plotter.autorefresh:
             self.Spectrum.plotter.refresh()
 
@@ -1443,8 +1454,14 @@ class Specfit(interactive.Interactive):
         # if axis and self.fitleg is not None:
             # don't remove fitleg unless it's in the current axis
             # self.fitleg.set_visible(False)
-            # if self.fitleg in axis.artists:
-            #     axis.artists.remove(self.fitleg)
+            if self.fitleg in axis.artists:
+                try:
+                    axis.artists.remove(self.fitleg)
+                except AttributeError:
+                    try:
+                        self.fitleg.remove()
+                    except Exception as ex:
+                        pass
         if self.Spectrum.plotter.autorefresh:
             self.Spectrum.plotter.refresh()
 
